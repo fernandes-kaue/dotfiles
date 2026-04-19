@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+out_dir="$HOME/.local/share/pkg-backups/$(date +%F-%H%M%S)"
+mkdir -p "$out_dir"
+
+pacman -Qqe > "$out_dir/pacman-explicit.txt"
+pacman -Qqm > "$out_dir/aur-foreign.txt" || true
+flatpak list --app --columns=application > "$out_dir/flatpak-apps.txt" || true
+systemctl --user list-unit-files --state=enabled > "$out_dir/systemd-user-enabled.txt"
+
+printf 'Backup written to %s\n' "$out_dir"

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+section() {
+  printf '\n== %s ==\n' "$1"
+}
+
+section "Power Profile"
+powerprofilesctl get 2>/dev/null || echo "powerprofilesctl not available"
+
+section "CPU Governor"
+cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor 2>/dev/null || echo "cpu governor not available"
+
+section "Temperatures"
+sensors 2>/dev/null || echo "lm_sensors not available"
+
+section "Top Processes"
+ps -eo pid,comm,%mem,%cpu --sort=-%mem | head -n 15
+
+section "NVIDIA"
+nvidia-smi 2>/dev/null || echo "nvidia-smi not available"

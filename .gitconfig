@@ -1,5 +1,5 @@
 [credential]
-	helper = store
+	helper = /usr/lib/git-core/git-credential-libsecret
 [init]
 	defaultBranch = main
 [user]

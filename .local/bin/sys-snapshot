@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+section() {
+  printf '\n== %s ==\n' "$1"
+}
+
+section "System"
+uname -a
+
+section "OS"
+grep '^PRETTY_NAME=' /etc/os-release || true
+
+section "Kernel"
+printf 'Kernel: %s\n' "$(uname -r)"
+printf 'Booted: %s\n' "$(uptime -p)"
+
+section "Graphics"
+lspci | rg 'VGA|3D|Display' || true
+
+section "Failed Units"
+systemctl --failed --no-legend || true
+systemctl --user --failed --no-legend || true
+
+section "Boot Errors"
+journalctl -b -p 3 --no-pager | tail -n 50 || true
+
+section "Disk / Memory"
+df -h /
+free -h
