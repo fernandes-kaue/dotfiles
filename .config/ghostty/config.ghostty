@@ -1,0 +1,38 @@
+font-family = Mono Nerd Font Mono
+font-family = Noto Emoji
+font-size = 12
+theme = Catppuccin Macchiato
+
+window-padding-x = 0
+window-padding-y = 0
+
+window-decoration = false
+
+cursor-style = block
+cursor-style-blink = false
+shell-integration = detect
+
+keybind = ctrl+shift+n=new_window
+keybind = ctrl+shift+q=close_window
+keybind = ctrl+shift+l=next_tab
+keybind = ctrl+shift+h=previous_tab
+keybind = ctrl+w=close_surface
+
+font-thicken = true
+font-feature = ["calt", "liga", "dlig"]
+
+confirm-close-surface = false
+
+clipboard-read = allow
+clipboard-write = allow
+
+background-opacity = 0.75
+background-blur = true
+
+keybind = ctrl+shift+e=new_split:right
+keybind = ctrl+shift+o=new_split:down
+
+keybind = ctrl+shift+up=goto_split:up
+keybind = ctrl+shift+down=goto_split:down
+keybind = ctrl+shift+left=goto_split:left
+keybind = ctrl+shift+right=goto_split:right

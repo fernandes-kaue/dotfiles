@@ -1,0 +1,9 @@
+[credential]
+	helper = store
+[init]
+	defaultBranch = main
+[user]
+	name = kaue
+	email = 90159661+fernandes-kaue@users.noreply.github.com
+[core]
+	hooksPath = /home/kaue/.git-hooks
