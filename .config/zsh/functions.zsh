@@ -35,3 +35,14 @@ psg() {
 syssnap() { sys-snapshot; }
 pkgsnap() { pkg-backup; }
 sysperf() { perf-check; }
+bootr() { boot-report; }
+logtriage() { log-triage "${1:-2h}"; }
+timerls() { systemctl --user list-timers --all; }
+svcfailed() { systemctl --failed --no-legend; echo; systemctl --user --failed --no-legend; }
+jwarn() { journalctl -b -p warning..alert --no-pager | tail -n "${1:-80}"; }
+gpu() {
+  lspci | rg 'VGA|3D|Display' || true
+  echo
+  nvidia-smi 2>/dev/null || echo "nvidia-smi not available"
+}
+dotstaged() { /bin/git --git-dir=$HOME/.dotfiles --work-tree=$HOME diff --cached --stat; }

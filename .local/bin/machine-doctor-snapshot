@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+out_dir="$HOME/.local/state/machine-doctor"
+mkdir -p "$out_dir"
+
+out_file="$out_dir/$(date +%F-%H%M%S).log"
+/home/kaue/.local/bin/machine-doctor > "$out_file"
+
+printf 'Snapshot written to %s\n' "$out_file"

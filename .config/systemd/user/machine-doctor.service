@@ -1,0 +1,6 @@
+[Unit]
+Description=Write a machine-doctor health snapshot
+
+[Service]
+Type=oneshot
+ExecStart=/home/kaue/.local/bin/machine-doctor-snapshot
