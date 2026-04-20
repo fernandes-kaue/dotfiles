@@ -35,6 +35,10 @@ psg() {
 syssnap() { sys-snapshot; }
 pkgsnap() { pkg-backup; }
 sysperf() { perf-check; }
+backuphome() { backup-home "$@"; }
+secretscan() { dotfiles-secret-scan "${1:-staged}"; }
+repostatus() { repo-status; }
+cachereport() { cache-report; }
 bootr() { boot-report; }
 logtriage() { log-triage "${1:-2h}"; }
 timerls() { systemctl --user list-timers --all; }

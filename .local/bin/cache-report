@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+paths=(
+  "${HOME}/.cache"
+  "${HOME}/.npm"
+  "${HOME}/.local/share/Trash"
+  "${HOME}/.local/share/Steam"
+  "${HOME}/.config/google-chrome"
+  "${HOME}/.config/floorp"
+  "${HOME}/Downloads"
+)
+
+tmp_report="$(mktemp)"
+trap 'rm -f "$tmp_report"' EXIT
+
+for path in "${paths[@]}"; do
+  if [[ -e "$path" ]]; then
+    du -sh "$path" 2>/dev/null >> "$tmp_report" || true
+  fi
+done
+
+sort -h "$tmp_report"

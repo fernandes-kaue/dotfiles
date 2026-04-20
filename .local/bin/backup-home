@@ -1,0 +1,176 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: backup-home [--dry-run] [target-dir]
+
+Default target:
+  $HOME/Backups/home
+
+What it backs up:
+  - $HOME/Projetos
+  - $HOME/Documentos
+  - $HOME/.dotfiles
+  - package/service manifests
+
+Retention:
+  - keep newest 7 snapshots
+  - keep 1 snapshot per older week for the newest 4 weeks
+EOF
+}
+
+dry_run=0
+target_root="${HOME}/Backups/home"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --dry-run)
+      dry_run=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      target_root="$1"
+      shift
+      ;;
+  esac
+done
+
+timestamp="$(date +%F-%H%M%S)"
+target_dir="${target_root%/}/${timestamp}"
+latest_link="${target_root%/}/latest"
+latest_dir=""
+
+mkdir -p "${target_root}"
+
+if [[ -L "${latest_link}" ]] || [[ -d "${latest_link}" ]]; then
+  latest_dir="$(readlink -f "${latest_link}" 2>/dev/null || true)"
+fi
+
+mkdir -p "${target_dir}/data" "${target_dir}/manifests"
+
+rsync_args=(
+  --archive
+  --human-readable
+  --delete
+  --info=stats2
+)
+
+if (( dry_run == 1 )); then
+  rsync_args+=(--dry-run)
+fi
+
+prune_snapshots() {
+  local snapshots=()
+  local keep_names=()
+  local remove_names=()
+  local weekly_seen=()
+  local weekly_count=0
+  local idx=0
+  local name week_key seen
+
+  while IFS= read -r name; do
+    [[ -n "$name" ]] && snapshots+=("$name")
+  done < <(
+    find "${target_root}" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' |
+      rg '^[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{6}$' |
+      sort -r
+  )
+
+  if (( ${#snapshots[@]} == 0 )); then
+    return
+  fi
+
+  for name in "${snapshots[@]}"; do
+    ((idx += 1))
+    if (( idx <= 7 )); then
+      keep_names+=("$name")
+      continue
+    fi
+
+    week_key="$(date -d "${name:0:10}" +%G-W%V)"
+    seen=0
+    for existing in "${weekly_seen[@]}"; do
+      if [[ "$existing" == "$week_key" ]]; then
+        seen=1
+        break
+      fi
+    done
+
+    if (( seen == 0 )) && (( weekly_count < 4 )); then
+      weekly_seen+=("$week_key")
+      keep_names+=("$name")
+      ((weekly_count += 1))
+    else
+      remove_names+=("$name")
+    fi
+  done
+
+  echo
+  echo "== Retention =="
+  printf 'Keeping %d snapshot(s)\n' "${#keep_names[@]}"
+  if (( ${#remove_names[@]} == 0 )); then
+    echo "Nothing to prune."
+    return
+  fi
+
+  printf 'Pruning %d snapshot(s)\n' "${#remove_names[@]}"
+  for name in "${remove_names[@]}"; do
+    echo "  ${name}"
+    if (( dry_run == 0 )); then
+      rm -rf -- "${target_root}/${name}"
+    fi
+  done
+}
+
+sync_path() {
+  local src="$1"
+  local dest_name="$2"
+  local link_dest=""
+  local run_args=("${rsync_args[@]}")
+
+  if [[ -e "$src" ]]; then
+    if [[ -n "${latest_dir}" ]] && [[ -d "${latest_dir}/data/${dest_name}" ]]; then
+      link_dest="${latest_dir}/data/${dest_name}"
+      run_args+=(--link-dest="${link_dest}")
+    fi
+
+    echo
+    echo "== Syncing ${src} -> ${target_dir}/data/${dest_name} =="
+    if [[ -n "${link_dest}" ]]; then
+      echo "Using link-dest: ${link_dest}"
+    else
+      echo "Using full copy mode: no previous snapshot for ${dest_name}"
+    fi
+    rsync "${run_args[@]}" "$src" "${target_dir}/data/${dest_name}"
+  else
+    echo "Skipping missing path: ${src}"
+  fi
+}
+
+sync_path "${HOME}/Projetos/" "Projetos/"
+sync_path "${HOME}/Documentos/" "Documentos/"
+sync_path "${HOME}/.dotfiles/" ".dotfiles/"
+
+if (( dry_run == 0 )); then
+  pacman -Qqe > "${target_dir}/manifests/pacman-explicit.txt"
+  pacman -Qqm > "${target_dir}/manifests/aur-foreign.txt" || true
+  flatpak list --app --columns=application > "${target_dir}/manifests/flatpak-apps.txt" || true
+  systemctl --user list-unit-files --state=enabled > "${target_dir}/manifests/systemd-user-enabled.txt"
+
+  ln -sfn "${target_dir}" "${latest_link}"
+fi
+
+prune_snapshots
+
+echo
+if (( dry_run == 1 )); then
+  echo "Dry run complete. Target would be: ${target_dir}"
+else
+  echo "Backup written to: ${target_dir}"
+  echo "Latest symlink: ${latest_link}"
+fi

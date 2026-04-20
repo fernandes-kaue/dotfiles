@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+report_repo() {
+  local name="$1"
+  local path="$2"
+
+  if ! /bin/git -C "$path" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    return
+  fi
+
+  local branch dirty upstream ahead_behind
+  branch="$(/bin/git -C "$path" branch --show-current 2>/dev/null || true)"
+  [[ -z "$branch" ]] && branch="detached"
+
+  if [[ -n "$(/bin/git -C "$path" status --short 2>/dev/null)" ]]; then
+    dirty="dirty"
+  else
+    dirty="clean"
+  fi
+
+  upstream="$(
+    /bin/git -C "$path" rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null || true
+  )"
+
+  if [[ -n "$upstream" ]]; then
+    ahead_behind="$(
+      /bin/git -C "$path" rev-list --left-right --count "${upstream}...HEAD" 2>/dev/null | awk '{print "behind=" $1 " ahead=" $2}'
+    )"
+  else
+    ahead_behind="no-upstream"
+  fi
+
+  printf '%-28s %-10s %-8s %s\n' "$name" "$branch" "$dirty" "$ahead_behind"
+}
+
+report_dotfiles() {
+  local branch dirty upstream ahead_behind
+
+  branch="$(
+    /bin/git --git-dir="${HOME}/.dotfiles" --work-tree="${HOME}" branch --show-current 2>/dev/null || true
+  )"
+  [[ -z "$branch" ]] && branch="detached"
+
+  if [[ -n "$(/bin/git --git-dir="${HOME}/.dotfiles" --work-tree="${HOME}" status --short 2>/dev/null)" ]]; then
+    dirty="dirty"
+  else
+    dirty="clean"
+  fi
+
+  upstream="$(
+    /bin/git --git-dir="${HOME}/.dotfiles" --work-tree="${HOME}" rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null || true
+  )"
+
+  if [[ -n "$upstream" ]]; then
+    ahead_behind="$(
+      /bin/git --git-dir="${HOME}/.dotfiles" --work-tree="${HOME}" rev-list --left-right --count "${upstream}...HEAD" 2>/dev/null | awk '{print "behind=" $1 " ahead=" $2}'
+    )"
+  else
+    ahead_behind="no-upstream"
+  fi
+
+  printf '%-28s %-10s %-8s %s\n' "dotfiles" "$branch" "$dirty" "$ahead_behind"
+}
+
+printf '%-28s %-10s %-8s %s\n' "repo" "branch" "state" "sync"
+printf '%-28s %-10s %-8s %s\n' "----" "------" "-----" "----"
+
+report_dotfiles
+
+for dir in "${HOME}/Projetos"/*; do
+  [[ -d "$dir" ]] || continue
+  report_repo "$(basename "$dir")" "$dir"
+done
