@@ -74,6 +74,26 @@ Create a commit after reviewing staged changes:
 git --git-dir=/home/kaue/.dotfiles --work-tree=/home/kaue commit -m "chore: update dotfiles"
 ```
 
+## Neovim config
+
+The active Neovim config lives at `~/.config/nvim` and is tracked by the bare
+dotfiles repo. A copy is also kept in this workspace at
+`/home/kaue/machineRelatedThings/dotfiles/nvim` for local review.
+
+To restore the workspace copy into the live config:
+
+```zsh
+mkdir -p ~/.config/nvim
+cp -a /home/kaue/machineRelatedThings/dotfiles/nvim/. ~/.config/nvim/
+```
+
+After restoring, install the declared plugins and Mason tools:
+
+```zsh
+nvim --headless "+Lazy! sync" +qa
+nvim --headless "+MasonInstall bash-language-server docker-compose-language-service dockerfile-language-server eslint-lsp hadolint intelephense java-debug-adapter java-test js-debug-adapter php-cs-fixer php-debug-adapter phpcs prisma-language-server shellcheck sqlls sqlfluff taplo yaml-language-server" +qa
+```
+
 If you need to replace or add a remote later:
 
 ```zsh
