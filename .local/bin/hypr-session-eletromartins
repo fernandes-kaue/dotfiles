@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+
+project="/home/kaue/Projetos/eletromartins.gerenc.serv"
+hyprctl dispatch workspace 3
+kitty --directory "$project" >/dev/null 2>&1 &
+floorp >/dev/null 2>&1 &

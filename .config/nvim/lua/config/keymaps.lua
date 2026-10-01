@@ -29,4 +29,31 @@ vim.keymap.set("n", "<leader>fd", function()
   Snacks.picker.files({ cwd = vim.fn.expand("%:p:h") })
 end, { desc = "Find Files (buffer dir)" })
 
+vim.keymap.set("n", "<leader>fC", function()
+  Snacks.picker.files({ cwd = vim.fn.stdpath("config") })
+end, { desc = "Find Neovim Config" })
+
+vim.keymap.set("n", "<leader>ez", "<cmd>edit ~/.config/zsh/aliases.zsh<cr>", { desc = "Edit Zsh Aliases" })
+vim.keymap.set("n", "<leader>eZ", "<cmd>edit ~/.zshrc<cr>", { desc = "Edit Zshrc" })
+vim.keymap.set("n", "<leader>eg", "<cmd>edit ~/.config/ghostty/config.ghostty<cr>", { desc = "Edit Ghostty Config" })
+vim.keymap.set("n", "<leader>ek", "<cmd>edit ~/.config/kitty/kitty.conf<cr>", { desc = "Edit Kitty Config" })
+vim.keymap.set("n", "<leader>en", "<cmd>edit ~/.config/nvim/init.lua<cr>", { desc = "Edit Neovim Init" })
+
+vim.keymap.set("n", "<leader>sB", function()
+  Snacks.picker.grep_buffers()
+end, { desc = "Grep Open Buffers" })
+
+vim.keymap.set("n", "<leader>sg", function()
+  Snacks.picker.grep()
+end, { desc = "Grep" })
+
+vim.keymap.set({ "n", "x" }, "<leader>sw", function()
+  Snacks.picker.grep_word()
+end, { desc = "Grep Word/Selection" })
+
+vim.keymap.set("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Line Diagnostics" })
+vim.keymap.set("n", "<leader>cL", "<cmd>LspInfo<cr>", { desc = "LSP Info" })
+vim.keymap.set("n", "<leader>cR", "<cmd>LspRestart<cr>", { desc = "Restart LSP" })
+
 vim.keymap.set("n", "<leader>xw", "<cmd>Trouble diagnostics toggle<cr>", { desc = "Workspace Diagnostics" })
+vim.keymap.set("n", "<leader>xb", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", { desc = "Buffer Diagnostics" })

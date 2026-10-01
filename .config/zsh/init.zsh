@@ -1,6 +1,5 @@
 plugins=(
   zsh-autosuggestions
-  zsh-syntax-highlighting
   history-substring-search
   you-should-use
   web-search
@@ -8,9 +7,14 @@ plugins=(
   colored-man-pages
   command-not-found
   git
-  dotenv
   sudo
 )
+
+if (( $+commands[direnv] )); then
+  plugins+=(direnv)
+fi
+
+plugins+=(zsh-syntax-highlighting)
 
 source "$ZSH/oh-my-zsh.sh"
 

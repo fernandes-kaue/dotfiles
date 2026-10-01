@@ -1,0 +1,22 @@
+#!/bin/sh
+# Watch Hyprland lifecycle events and re-evaluate the active workspace.
+set -eu
+
+runtime=${XDG_RUNTIME_DIR:?}
+signature=${HYPRLAND_INSTANCE_SIGNATURE:?}
+lock="$runtime/hypr-auto-fullscreen.lock"
+socket="$runtime/hypr/$signature/.socket2.sock"
+
+exec 9>"$lock"
+flock -n 9 || exit 0
+[ -S "$socket" ] || exit 0
+
+/home/kaue/.local/bin/hypr-auto-fullscreen || true
+socat -u "UNIX-CONNECT:$socket" - | while IFS= read -r event; do
+  case "$event" in
+    openwindow\>*|closewindow\>*|movewindow\>*|workspace\>*)
+      sleep 0.08
+      /home/kaue/.local/bin/hypr-auto-fullscreen || true
+      ;;
+  esac
+done

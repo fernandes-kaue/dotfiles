@@ -1,0 +1,24 @@
+#!/bin/sh
+# Read-only post-update health check for the personalized Hyprland stack.
+set -eu
+
+printf '%s\n' 'Hyprland configuration'
+hyprland --verify-config >/dev/null && printf '%s\n' '  OK'
+
+printf '%s\n' 'Required commands'
+for command in hyprctl serpantinumd rofi jq playerctl wpctl; do
+  command -v "$command" >/dev/null && printf '  OK %s\n' "$command" || printf '  MISSING %s\n' "$command"
+done
+
+printf '%s\n' 'QML overrides'
+qmllint "$HOME/.config/serpantinum/overrides/quickshell/bar/TopBar.qml" \
+  "$HOME/.config/serpantinum/overrides/quickshell/bar/modules/InfoWidget.qml" \
+  "$HOME/.config/serpantinum/overrides/quickshell/bar/modules/workspaces/WorkspacesWidget.qml" \
+  "$HOME/.config/serpantinum/overrides/quickshell/bar/sidemodules/workspaces/SideWorkspacesWidget.qml" >/dev/null && printf '%s\n' '  OK'
+
+if [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]; then
+  printf '%s\n' 'Live monitors'
+  hyprctl -j monitors | jq -r '.[] | "  \(.name): \(.width)x\(.height)@\(.refreshRate|floor)Hz"'
+else
+  printf '%s\n' 'Live monitors: unavailable outside a Hyprland session'
+fi

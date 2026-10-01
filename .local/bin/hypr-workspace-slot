@@ -1,0 +1,23 @@
+#!/bin/sh
+# Map visual workspace slots 1..10 to eDP-1 (1..10) or HDMI-A-1 (11..20).
+set -eu
+
+slot=${1:?usage: hypr-workspace-slot SLOT [move]}
+action=${2:-focus}
+
+case "$slot" in
+  [1-9]|10) ;;
+  *) exit 2 ;;
+esac
+
+monitor=$(hyprctl -j monitors | jq -r '.[] | select(.focused == true) | .name')
+case "$monitor" in
+  HDMI-A-1) workspace=$((slot + 10)) ;;
+  *) workspace=$slot ;;
+esac
+
+if [ "$action" = move ]; then
+  exec hyprctl dispatch movetoworkspace "$workspace"
+fi
+
+exec hyprctl dispatch workspace "$workspace"

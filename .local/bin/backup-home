@@ -57,6 +57,7 @@ rsync_args=(
   --archive
   --human-readable
   --delete
+  --exclude='**/zbx_env/**'
   --info=stats2
 )
 

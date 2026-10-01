@@ -1,0 +1,8 @@
+#!/bin/sh
+# Save only restorable desktop intent; credentials and window contents are never stored.
+set -eu
+
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/hypr"
+mkdir -p "$state_dir"
+hyprctl -j clients | jq '[.[] | select(.mapped == true and .workspace.id > 0) | {class, workspace: .workspace.id, monitor}]' > "$state_dir/session.json"
+printf 'Session saved: %s\n' "$state_dir/session.json"

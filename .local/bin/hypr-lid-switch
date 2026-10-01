@@ -1,0 +1,26 @@
+#!/bin/sh
+# Handles laptop lid switch events: lock + DPMS off on close, DPMS on + NumLock on open.
+set -eu
+
+action="${1:-}"
+
+case "$action" in
+  close)
+    # 1. Trigger session lock via Serpantinum
+    serpantinum lock || true
+    # 2. Brief pause allowing lock screen surface to render before powering down panel
+    sleep 0.3
+    # 3. Turn off display (DPMS off)
+    hyprctl dispatch 'hl.dsp.dpms({ action = "disable" })' >/dev/null 2>&1 || true
+    ;;
+  open)
+    # 1. Turn on display (DPMS on)
+    hyprctl dispatch 'hl.dsp.dpms({ action = "enable" })' >/dev/null 2>&1 || true
+    # 2. Ensure NumLock is active on the lock screen
+    /home/kaue/.local/bin/hypr-ensure-numlock || true
+    ;;
+  *)
+    echo "Usage: $0 {close|open}" >&2
+    exit 1
+    ;;
+esac

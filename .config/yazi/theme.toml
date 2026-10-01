@@ -1,0 +1,5 @@
+[mgr]
+cwd = { fg = "#e8b6f0" }
+hovered = { bg = "#524154", fg = "#f3dbf2" }
+preview_hovered = { bg = "#524154" }
+border_style = { fg = "#8b5cb9" }

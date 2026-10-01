@@ -1,6 +1,0 @@
-[Unit]
-Description=Create a snapshot-style home backup
-
-[Service]
-Type=oneshot
-ExecStart=/home/kaue/.local/bin/backup-home

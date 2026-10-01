@@ -1,0 +1,26 @@
+#!/bin/sh
+# Load the locally compiled overview plugin after Hyprland exposes its IPC.
+set -eu
+
+plugin="/home/kaue/opt/hyprview/build/hyprview.so"
+[ -f "$plugin" ] || exit 0
+
+if [ "${1:-}" = "--reload" ]; then
+  hyprctl plugin unload "$plugin" >/dev/null 2>&1 || true
+fi
+
+hyprctl plugin list 2>/dev/null | grep -qi hyprview || hyprctl plugin load "$plugin"
+
+hyprctl eval 'hl.config({ plugin = { hyprview = {
+  active_border_color = 0xFFCBA6F7,
+  inactive_border_color = 0xFF6E4E7B,
+  bg_dim = 0.62,
+  border_radius = 12,
+  border_width = 2,
+  margin = 18,
+  workspace_indicator_enabled = 1,
+  window_name_enabled = 1,
+  window_name_font_size = 16,
+  window_name_bg_opacity = 0.82,
+  window_text_color = 0xFFF4E8FC,
+} } })'

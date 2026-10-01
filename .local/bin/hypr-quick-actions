@@ -1,0 +1,31 @@
+#!/bin/sh
+# Purposeful desktop actions; presentation and media reuse existing Serpantinum UI.
+set -eu
+
+action=$(printf '%s\n' \
+  'Desenvolvimento' \
+  'Jogo e stream' \
+  'Modo foco' \
+  'Visão de janelas' \
+  'Mídia' \
+  'Bloquear sessão' \
+  'Health check' \
+  'Sessão Eletromartins' \
+  'Sessão Faculdade' \
+  'Áudio' \
+  'Controle do desktop' \
+  | rofi -dmenu -i -p 'Ações' -theme-str 'window { background-color: #170f1a; } listview { background-color: #170f1a; } element selected { background-color: #34203b; }')
+
+case "$action" in
+  Desenvolvimento) exec hypr-development-mode ;;
+  'Jogo e stream') exec hypr-game-stream-mode ;;
+  'Modo foco') exec hypr-focus-mode ;;
+  'Visão de janelas') exec hypr-window-overview ;;
+  Mídia) exec serpantinum msg toggle music ;;
+  'Bloquear sessão') exec serpantinum lock ;;
+  'Health check') exec ghostty -e sh -c 'hypr-health-check; printf "\nPressione Enter para fechar..."; read -r' ;;
+  'Sessão Eletromartins') exec hypr-session-eletromartins ;;
+  'Sessão Faculdade') exec hypr-session-faculdade ;;
+  Áudio) exec hypr-audio-context ;;
+  'Controle do desktop') exec hypr-control-center ;;
+esac

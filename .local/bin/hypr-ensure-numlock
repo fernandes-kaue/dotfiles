@@ -1,0 +1,5 @@
+#!/bin/sh
+# Ensures NumLock is ON for all keyboards in Hyprland
+set -eu
+
+hyprctl eval "hl.config({ input = { numlock_by_default = false } }); hl.config({ input = { numlock_by_default = true } })" >/dev/null 2>&1 || true

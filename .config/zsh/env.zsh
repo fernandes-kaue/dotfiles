@@ -3,10 +3,13 @@ export EDITOR="nvim"
 export VISUAL="nvim"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
+typeset -U path PATH
+
 if [[ -n "${NODE_HOME:-}" ]]; then
-  export PATH="$NODE_HOME/bin:$PATH"
+  path=("$NODE_HOME/bin" $path)
 fi
 
-export PATH="$HOME/.npm-global/bin:$PATH"
-export PATH="$PATH:$HOME/.local/bin"
+path=("$HOME/development/flutter/bin" "$HOME/.npm-global/bin" "$HOME/.local/bin" $path)
+export CHROME_EXECUTABLE="/usr/bin/google-chrome-stable"
 export CODEX_MEMORY_VAULT="/home/kaue/Projetos/memoriasCodex"
+export PATH="$PATH:$HOME/flutter/bin"

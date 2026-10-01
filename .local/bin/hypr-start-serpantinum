@@ -1,0 +1,18 @@
+#!/bin/sh
+# Start one Serpantinum shell without broad pkill calls that can kill the caller.
+set -eu
+
+/home/kaue/.local/bin/hypr-apply-serpantinum-overrides
+pid_file="/tmp/serpantinumd.pid"
+lock_file="/tmp/serpantinumd.lock"
+
+if [ -f "$pid_file" ]; then
+  pid=$(sed -n '1p' "$pid_file" 2>/dev/null || true)
+  if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+    exit 0
+  fi
+fi
+
+rm -f "$pid_file" "$lock_file"
+# Detached session: closing the invoking terminal must not terminate the bar.
+exec setsid -f sh -c 'exec serpantinumd start >/tmp/serpantinumd.log 2>&1'

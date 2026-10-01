@@ -1,0 +1,20 @@
+#!/bin/sh
+# Fast window overview for the focused Hyprland session.
+set -eu
+
+# Prefer live compositor previews; retain Rofi as a compatibility fallback.
+/home/kaue/.local/bin/hypr-load-hyprview >/dev/null 2>&1 || true
+if hyprctl eval 'local success, err = hl.plugin.hyprview.toggle("all placement:grid"); assert(success, err)' >/dev/null 2>&1; then
+  exit 0
+fi
+
+selected=$(hyprctl -j clients | jq -r '
+  .[]
+  | select(.mapped == true and .hidden == false)
+  | select(.workspace.name | startswith("special:") | not)
+  | [.address, .workspace.name, .class, .title]
+  | @tsv
+' | rofi -dmenu -i -p 'Janelas' -format s -theme-str 'window { background-color: #170f1a; } listview { background-color: #170f1a; } element selected { background-color: #34203b; }')
+
+address=$(printf '%s' "$selected" | cut -f1)
+[ -n "$address" ] && exec hyprctl dispatch focuswindow "address:$address"

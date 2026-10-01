@@ -1,0 +1,21 @@
+#!/bin/sh
+# Move the focused window to the matching visual workspace on a chosen monitor.
+set -eu
+
+target=${1:?usage: hypr-send-window-monitor MONITOR}
+current_workspace=$(hyprctl -j activewindow | jq -r '.workspace.id // empty')
+
+case "$current_workspace" in
+  [1-9]|10) slot=$current_workspace ;;
+  1[1-9]|20) slot=$((current_workspace - 10)) ;;
+  *) exit 0 ;;
+esac
+
+case "$target" in
+  eDP-1) target_workspace=$slot ;;
+  HDMI-A-1) target_workspace=$((slot + 10)) ;;
+  *) exit 2 ;;
+esac
+
+hyprctl dispatch moveworkspacetomonitor "$target_workspace" "$target"
+exec hyprctl dispatch movetoworkspacesilent "$target_workspace"

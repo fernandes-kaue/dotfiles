@@ -1,0 +1,32 @@
+#!/bin/sh
+set -eu
+
+if serpantinum ipc call control-center toggle >/dev/null 2>&1; then
+  exit 0
+fi
+
+action=$(printf '%s\n' \
+  'Ações rápidas' \
+  'Modo apresentação' \
+  'Modo foco' \
+  'Jogo e stream' \
+  'Desenvolvimento' \
+  'Sessão: salvar' \
+  'Sessão: restaurar' \
+  'Áudio' \
+  'Health check' \
+  'Atualizar stack' \
+  | rofi -dmenu -i -p 'Controle do desktop')
+
+case "$action" in
+  'Ações rápidas') exec hypr-quick-actions ;;
+  'Modo apresentação') exec hypr-presentation-mode ;;
+  'Modo foco') exec hypr-focus-mode ;;
+  'Jogo e stream') exec hypr-game-stream-mode ;;
+  Desenvolvimento) exec hypr-development-mode ;;
+  'Sessão: salvar') exec hypr-session-save ;;
+  'Sessão: restaurar') exec hypr-session-restore ;;
+  Áudio) exec hypr-audio-context ;;
+  'Health check') exec ghostty -e sh -c 'hypr-health-check; read -r' ;;
+  'Atualizar stack') exec ghostty -e sh -c 'hypr-update-stack; read -r' ;;
+esac

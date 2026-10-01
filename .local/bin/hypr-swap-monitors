@@ -1,0 +1,33 @@
+#!/bin/sh
+# Exchange the most recently focused ordinary window between eDP-1 and HDMI-A-1.
+set -eu
+
+monitors=$(hyprctl -j monitors)
+clients=$(hyprctl -j clients)
+
+workspace_for() {
+  printf '%s' "$monitors" | jq -r --arg monitor "$1" '.[] | select(.name == $monitor) | .activeWorkspace.id'
+}
+
+latest_client_for() {
+  printf '%s' "$clients" | jq -r --arg monitor "$1" '
+    [ .[]
+      | select(.monitor == $monitor)
+      | select(.workspace.name | startswith("special:") | not)
+      | select(.mapped == true and .hidden == false)
+    ]
+    | sort_by(.focusHistoryID)
+    | .[0].address // empty
+  '
+}
+
+notebook_window=$(latest_client_for eDP-1)
+external_window=$(latest_client_for HDMI-A-1)
+notebook_workspace=$(workspace_for eDP-1)
+external_workspace=$(workspace_for HDMI-A-1)
+
+[ -n "$notebook_window" ] && [ -n "$external_window" ] || exit 0
+[ -n "$notebook_workspace" ] && [ -n "$external_workspace" ] || exit 0
+
+hyprctl dispatch movetoworkspacesilent "$external_workspace,address:$notebook_window"
+hyprctl dispatch movetoworkspacesilent "$notebook_workspace,address:$external_window"

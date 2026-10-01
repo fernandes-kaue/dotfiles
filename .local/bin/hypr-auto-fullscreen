@@ -1,0 +1,34 @@
+#!/bin/sh
+# Keep the active workspace fullscreen only while it has exactly one tiled window.
+set -eu
+
+workspace=$(hyprctl -j activeworkspace | jq -r '.id // empty')
+[ -n "$workspace" ] && [ "$workspace" -gt 0 ] || exit 0
+
+clients=$(hyprctl -j clients)
+tiled=$(printf '%s' "$clients" | jq -c --argjson workspace "$workspace" '
+  [ .[]
+    | select(.workspace.id == $workspace)
+    | select(.floating == false and .mapped == true and .hidden == false)
+  ]
+')
+count=$(printf '%s' "$tiled" | jq 'length')
+focused=$(hyprctl -j activewindow | jq -r '.address // empty')
+
+if [ "$count" -eq 1 ]; then
+  sole=$(printf '%s' "$tiled" | jq -r '.[0].address')
+  fullscreen=$(printf '%s' "$tiled" | jq -r '.[0].fullscreen')
+  if [ "$fullscreen" = "0" ]; then
+    hyprctl dispatch focuswindow "address:$sole"
+    hyprctl dispatch fullscreen 0
+  fi
+  exit 0
+fi
+
+# A second tiled window should restore the normal master layout.
+fullscreen=$(printf '%s' "$tiled" | jq -r '.[] | select(.fullscreen != 0) | .address' | head -n 1)
+if [ -n "$fullscreen" ]; then
+  hyprctl dispatch focuswindow "address:$fullscreen"
+  hyprctl dispatch fullscreen 0
+  [ -n "$focused" ] && hyprctl dispatch focuswindow "address:$focused"
+fi

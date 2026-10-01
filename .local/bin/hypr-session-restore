@@ -1,0 +1,13 @@
+#!/bin/sh
+# Restore a conservative set of daily applications from a saved session.
+set -eu
+
+session="${XDG_STATE_HOME:-$HOME/.local/state}/hypr/session.json"
+[ -f "$session" ] || { printf '%s\n' 'No saved Hyprland session.' >&2; exit 1; }
+
+classes=$(jq -r '.[].class' "$session" | sort -u)
+printf '%s\n' "$classes" | grep -qi floorp && floorp >/dev/null 2>&1 &
+printf '%s\n' "$classes" | grep -qi kitty && kitty >/dev/null 2>&1 &
+printf '%s\n' "$classes" | grep -qi android-studio && android-studio >/dev/null 2>&1 &
+printf '%s\n' "$classes" | grep -qi obsproject && obs >/dev/null 2>&1 &
+printf '%s\n' 'Conservative session restore started.'

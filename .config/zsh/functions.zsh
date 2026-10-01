@@ -1,17 +1,17 @@
 hyprc() { nvim ~/.config/hypr/hyprland.conf }
-zshc() { nvim ~/.zshrc }
-zshd() { nvim ~/.config/zsh }
+zshc() { cd ~/.config/zsh}
 zshe() { exec zsh }
 
 b() {
-  if [[ -z "${1:-}" ]]; then
-    local current max percent
-    current="$(brightnessctl get)"
-    max="$(brightnessctl max)"
+  local current max percent target
+
+  if [[ "${1:-}" == "status" ]]; then
+    current="$(/usr/bin/brightnessctl get)"
+    max="$(/usr/bin/brightnessctl max)"
     percent=$((100 * current / max))
     echo "Current brightness: ${percent}% (${current}/${max})"
   else
-    brightnessctl set "${1}%"
+    /usr/bin/brightnessctl set "${1:-100}%"
   fi
 }
 

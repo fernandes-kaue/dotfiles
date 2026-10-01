@@ -1,0 +1,16 @@
+#!/bin/sh
+# Update only fast-forward clean trees, rebuild Hyprview, then reapply overrides.
+set -eu
+
+for repo in "$HOME/.local/share/serpantinum" "$HOME/opt/hyprview"; do
+  if ! git -C "$repo" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    printf 'Skipping non-Git install: %s\n' "$repo"
+    continue
+  fi
+  git -C "$repo" diff --quiet || { printf 'Refusing update: dirty tree %s\n' "$repo" >&2; exit 1; }
+  git -C "$repo" pull --ff-only
+done
+
+make -C "$HOME/opt/hyprview/src" all
+hypr-apply-serpantinum-overrides
+hypr-health-check

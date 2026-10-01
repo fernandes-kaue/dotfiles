@@ -1,0 +1,18 @@
+#!/bin/sh
+# Restore the intended game/stream desk without changing GPU, power or audio policy.
+set -eu
+
+monitors=$(hyprctl -j monitors)
+has_notebook=$(printf '%s' "$monitors" | jq -e 'any(.[]; .name == "eDP-1")' >/dev/null && echo yes || echo no)
+has_external=$(printf '%s' "$monitors" | jq -e 'any(.[]; .name == "HDMI-A-1")' >/dev/null && echo yes || echo no)
+
+[ "$has_notebook" = yes ] && hyprctl dispatch moveworkspacetomonitor 9 eDP-1 || true
+if [ "$has_external" = yes ]; then
+  hyprctl dispatch moveworkspacetomonitor 20 HDMI-A-1 || true
+  hyprctl dispatch workspace 20 || true
+else
+  hyprctl dispatch moveworkspacetomonitor 10 eDP-1 || true
+fi
+
+cs2_address=$(hyprctl -j clients | jq -r '[.[] | select(.class == "cs2") | .address] | first // empty')
+[ -n "$cs2_address" ] && hyprctl dispatch focuswindow "address:$cs2_address" || true

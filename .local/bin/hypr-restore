@@ -1,0 +1,23 @@
+#!/bin/sh
+# Preview a configuration snapshot; applying remains explicit and scoped.
+set -eu
+
+repo="$HOME/.config/workstation-config-backup"
+commit=${1:?usage: hypr-restore COMMIT [--apply]}
+
+git -C "$repo" rev-parse --verify "$commit^{commit}" >/dev/null
+git -C "$repo" diff --stat "$commit"..HEAD
+
+if [ "${2:-}" != "--apply" ]; then
+  printf '%s\n' 'Preview only. Re-run with --apply to restore tracked config files.'
+  exit 0
+fi
+
+tmpdir=$(mktemp -d)
+trap 'rm -rf "$tmpdir"' EXIT
+git -C "$repo" archive "$commit" | tar -x -C "$tmpdir"
+rsync -a "$tmpdir/hypr/" "$HOME/.config/hypr/"
+rsync -a "$tmpdir/serpantinum/" "$HOME/.config/serpantinum/"
+rsync -a "$tmpdir/kitty/" "$HOME/.config/kitty/"
+rsync -a "$tmpdir/bin/" "$HOME/.local/bin/"
+printf '%s\n' 'Restore applied. Run hyprctl reload or re-enter Hyprland for settings to take effect.'

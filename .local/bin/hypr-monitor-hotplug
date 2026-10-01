@@ -1,0 +1,24 @@
+#!/bin/sh
+# Keep the two workspace banks coherent when HDMI-A-1 appears or disappears.
+set -eu
+
+monitors=$(hyprctl -j monitors)
+external=$(printf '%s' "$monitors" | jq -r 'any(.[]; .name == "HDMI-A-1")')
+
+if [ "$external" = true ]; then
+  for workspace in $(seq 1 10); do
+    hyprctl dispatch moveworkspacetomonitor "$workspace" eDP-1 >/dev/null 2>&1 || true
+    hyprctl dispatch moveworkspacetomonitor "$((workspace + 10))" HDMI-A-1 >/dev/null 2>&1 || true
+  done
+
+  cs2=$(hyprctl -j clients | jq -r '[.[] | select(.class == "cs2") | .address] | first // empty')
+  [ -n "$cs2" ] && hyprctl dispatch movetoworkspacesilent "20,address:$cs2" >/dev/null 2>&1 || true
+  exit 0
+fi
+
+# Without HDMI, keep externally assigned windows usable on their equivalent
+# visual slot of the notebook instead of leaving them in an invisible bank.
+hyprctl -j clients | jq -r '.[] | select(.workspace.id >= 11 and .workspace.id <= 20) | [.address, (.workspace.id - 10)] | @tsv' |
+while IFS='	' read -r address workspace; do
+  [ -n "$address" ] && hyprctl dispatch movetoworkspacesilent "$workspace,address:$address" >/dev/null 2>&1 || true
+done

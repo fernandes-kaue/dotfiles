@@ -1,0 +1,16 @@
+#!/bin/sh
+# Establish the predictable development desk without closing or moving user work.
+set -eu
+
+hyprctl dispatch moveworkspacetomonitor 2 eDP-1
+hyprctl dispatch moveworkspacetomonitor 3 eDP-1
+hyprctl dispatch moveworkspacetomonitor 4 eDP-1
+
+floorp_window=$(hyprctl -j clients | jq -r '[.[] | select(.class | test("floorp"; "i")) | .address] | first // empty')
+if [ -n "$floorp_window" ]; then
+  hyprctl dispatch focuswindow "address:$floorp_window"
+else
+  floorp >/dev/null 2>&1 &
+fi
+
+hyprctl dispatch workspace 3

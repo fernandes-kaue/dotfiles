@@ -1,10 +1,33 @@
-font-family = Mono Nerd Font Mono
-font-family = Noto Emoji
-font-size = 12
-theme = Catppuccin Macchiato
+font-family = JetBrains Mono
+font-family = Noto Color Emoji
+font-size = 13
 
-window-padding-x = 0
-window-padding-y = 0
+# Kitty palette, kept local rather than relying on a bundled Ghostty theme.
+background = #231e23
+foreground = #eae0e7
+selection-foreground = #f3dbf2
+selection-background = #524154
+cursor-color = #e8b6f0
+cursor-text = #472151
+palette = 0=#4c444c
+palette = 1=#ffb4ab
+palette = 2=#e8b6f0
+palette = 3=#f5b7b1
+palette = 4=#d6c0d6
+palette = 5=#5f3869
+palette = 6=#524154
+palette = 7=#cfc3cd
+palette = 8=#988e97
+palette = 9=#93000a
+palette = 10=#fcd7ff
+palette = 11=#ffdad6
+palette = 12=#f3dbf2
+palette = 13=#794f82
+palette = 14=#673b37
+palette = 15=#eae0e7
+
+window-padding-x = 4
+window-padding-y = 4
 
 window-decoration = false
 
@@ -18,16 +41,15 @@ keybind = ctrl+shift+l=next_tab
 keybind = ctrl+shift+h=previous_tab
 keybind = ctrl+w=close_surface
 
-font-thicken = true
-font-feature = ["calt", "liga", "dlig"]
+font-feature = calt, liga, dlig
 
 confirm-close-surface = false
 
 clipboard-read = allow
 clipboard-write = allow
 
-background-opacity = 0.75
-background-blur = true
+background-opacity = 1
+background-blur = false
 
 keybind = ctrl+shift+e=new_split:right
 keybind = ctrl+shift+o=new_split:down

@@ -1,0 +1,22 @@
+#!/bin/sh
+# Event-driven monitor reconciliation; one instance per Hyprland session.
+set -eu
+
+runtime=${XDG_RUNTIME_DIR:?}
+signature=${HYPRLAND_INSTANCE_SIGNATURE:?}
+socket="$runtime/hypr/$signature/.socket2.sock"
+lock="$runtime/hypr-monitor-hotplug.lock"
+
+exec 9>"$lock"
+flock -n 9 || exit 0
+[ -S "$socket" ] || exit 0
+
+hypr-monitor-hotplug || true
+socat -u "UNIX-CONNECT:$socket" - | while IFS= read -r event; do
+  case "$event" in
+    monitoradded\>*|monitorremoved\>*)
+      sleep 0.5
+      hypr-monitor-hotplug || true
+      ;;
+  esac
+done

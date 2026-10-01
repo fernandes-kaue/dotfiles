@@ -1,0 +1,24 @@
+#!/bin/sh
+# Toggle fullscreen only when this script created it; never alter global gaps.
+set -eu
+
+runtime_dir="${XDG_RUNTIME_DIR:-/tmp}"
+workspace=$(hyprctl -j activeworkspace | jq -r '.id // empty')
+[ -n "$workspace" ] && [ "$workspace" -gt 0 ] || exit 0
+state_file="$runtime_dir/hypr-focus-mode-$workspace"
+
+if [ -f "$state_file" ]; then
+  window=$(sed -n '1p' "$state_file")
+  rm -f "$state_file"
+  [ -n "$window" ] || exit 0
+  hyprctl dispatch focuswindow "address:$window" || exit 0
+  fullscreen=$(hyprctl -j activewindow | jq -r '.fullscreen // 0')
+  [ "$fullscreen" = "0" ] || hyprctl dispatch fullscreen 0
+  exit 0
+fi
+
+window=$(hyprctl -j activewindow | jq -r '.address // empty')
+fullscreen=$(hyprctl -j activewindow | jq -r '.fullscreen // 0')
+[ -n "$window" ] && [ "$fullscreen" = "0" ] || exit 0
+printf '%s\n' "$window" > "$state_file"
+hyprctl dispatch fullscreen 0

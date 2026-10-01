@@ -1,0 +1,32 @@
+#!/bin/sh
+# Reapply user-owned QML overrides after a Serpantinum source update.
+set -eu
+
+source_root="$HOME/.local/share/serpantinum/src/quickshell"
+override_root="$HOME/.config/serpantinum/overrides/quickshell"
+manifest="$override_root/.upstream-sha256"
+
+for relative in \
+  "ControlCenter.qml" \
+  "Shell.qml" \
+  "qmldir" \
+  "bar/TopBar.qml" \
+  "bar/modules/InfoWidget.qml" \
+  "bar/modules/workspaces/WorkspacesWidget.qml" \
+  "bar/sidemodules/workspaces/SideWorkspacesWidget.qml" \
+  "lock/Lock.qml" \
+  "idle/Idle.qml"
+do
+  source_file="$source_root/$relative"
+  override_file="$override_root/$relative"
+  [ -f "$override_file" ] || continue
+  expected=$(awk -v path="$relative" '$2 == path { print $1 }' "$manifest" 2>/dev/null || true)
+  current=$(sha256sum "$source_file" | awk '{ print $1 }')
+  override=$(sha256sum "$override_file" | awk '{ print $1 }')
+  if [ -n "$expected" ] && [ "$current" != "$expected" ] && [ "$current" != "$override" ]; then
+    printf '%s\n' "Serpantinum override skipped after upstream change: $relative" >&2
+    continue
+  fi
+  mkdir -p "$(dirname "$source_file")"
+  cmp -s "$override_file" "$source_file" || cp "$override_file" "$source_file"
+done
