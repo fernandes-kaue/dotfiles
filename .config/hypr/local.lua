@@ -73,6 +73,11 @@ hl.config({
     always_keep_position = true,
     focus_master_on_close = true,
   },
+
+  misc = {
+    mouse_move_enables_dpms = true,
+    key_press_enables_dpms = true,
+  },
 })
 
 -- Serpantinum uses speed 5 globally; workspaces benefit from a calmer transition.
@@ -100,6 +105,15 @@ hl.window_rule({
 hl.window_rule({ name = "obs-on-notebook", match = { class = "com.obsproject.Studio" }, workspace = "9" })
 hl.window_rule({ name = "cs2-on-external", match = { class = "cs2" }, workspace = "20", immediate = true })
 hl.window_rule({ name = "floorp-on-notebook", match = { class = ".*[Ff]loorp.*" }, workspace = "2" })
+hl.window_rule({
+  name = "reaper-main-fullscreen",
+  match = {
+    class = "^(REAPER)$",
+    title = ".*REAPER v.*",
+  },
+  tile = true,
+  fullscreen = true,
+})
 
 -- Small utility windows should not disrupt the master layout.
 for _, rule in ipairs({
