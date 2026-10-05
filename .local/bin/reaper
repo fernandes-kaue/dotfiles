@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Wrapper for REAPER: automatically sets PipeWire to studio low latency (128 samples)
+# and resets to default (dynamic quantum) upon closing.
+set -u
+
+STUDIO_QUANTUM="${REAPER_STUDIO_QUANTUM:-128}"
+STUDIO_RATE="${REAPER_STUDIO_RATE:-48000}"
+
+# 1. Force low-latency quantum on PipeWire
+if command -v pw-metadata >/dev/null 2>&1; then
+  pw-metadata -n settings 0 clock.force-quantum "$STUDIO_QUANTUM" >/dev/null 2>&1 || true
+fi
+
+# 2. Trap termination signals and exit to guarantee quantum reset
+cleanup() {
+  if command -v pw-metadata >/dev/null 2>&1; then
+    pw-metadata -n settings 0 clock.force-quantum 0 >/dev/null 2>&1 || true
+  fi
+}
+trap cleanup EXIT INT TERM HUP
+
+# 3. Export environment and launch REAPER
+export PIPEWIRE_QUANTUM="${STUDIO_QUANTUM}/${STUDIO_RATE}"
+
+if [ -x "/usr/lib/REAPER/reaper" ]; then
+  /usr/lib/REAPER/reaper "$@"
+elif [ -x "/usr/bin/reaper" ]; then
+  /usr/bin/reaper "$@"
+else
+  echo "REAPER binary not found." >&2
+  exit 1
+fi
