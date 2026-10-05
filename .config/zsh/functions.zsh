@@ -1,5 +1,5 @@
 hyprc() { nvim ~/.config/hypr/hyprland.conf }
-zshc() { cd ~/.config/zsh}
+zshc() { cd ~/.config/zsh; }
 zshe() { exec zsh }
 
 b() {
