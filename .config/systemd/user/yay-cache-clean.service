@@ -1,0 +1,6 @@
+[Unit]
+Description=Clean untracked AUR build cache in Yay
+
+[Service]
+Type=oneshot
+ExecStart=/home/kaue/.local/bin/yay-cache-clean

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+# Weekly automatic cleanup of untracked AUR build artifacts in yay cache
+if command -v yay >/dev/null 2>&1; then
+  echo "y" | yay -Sc --aur --noconfirm >/dev/null 2>&1 || true
+fi
