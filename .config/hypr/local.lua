@@ -78,6 +78,10 @@ hl.config({
     mouse_move_enables_dpms = true,
     key_press_enables_dpms = true,
   },
+
+  render = {
+    direct_scanout = 2,
+  },
 })
 
 -- Serpantinum uses speed 5 globally; workspaces benefit from a calmer transition.

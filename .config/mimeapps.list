@@ -13,6 +13,8 @@ x-scheme-handler/geo=google-maps-geo-handler.desktop;
 x-scheme-handler/http=userapp-Firefox-CX8KM3.desktop;floorp.desktop;
 x-scheme-handler/https=userapp-Firefox-CX8KM3.desktop;floorp.desktop;
 x-scheme-handler/mailto=org.mozilla.Thunderbird.desktop;
+application/pdf=onlyoffice-desktopeditors.desktop;
+application/zip=org.kde.ark.desktop;
 
 [Default Applications]
 application/json=nvim.desktop;
@@ -59,3 +61,5 @@ video/3gpp=vlc.desktop
 video/x-ms-wmv=vlc.desktop
 video/x-m4v=vlc.desktop
 video/x-theora+ogg=vlc.desktop
+application/pdf=onlyoffice-desktopeditors.desktop
+application/zip=org.kde.ark.desktop
