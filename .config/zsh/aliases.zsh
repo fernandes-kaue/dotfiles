@@ -18,4 +18,11 @@ alias dot-update='dot add -A && dot commit -m "feat: update dotfiles" && dot pus
 alias eou='eos-update'
 alias lightsail='ssh -i ~/.ssh/lightsail.pem ubuntu@32.192.116.112'
 
-
+# Hyprland window/workspace modes & tools
+alias hypr-dev='$HOME/.local/bin/hypr-development-mode'
+alias hypr-game='$HOME/.local/bin/hypr-game-stream-mode'
+alias hypr-focus='$HOME/.local/bin/hypr-focus-mode'
+alias hypr-present='$HOME/.local/bin/hypr-presentation-mode'
+alias hypr-center='$HOME/.local/bin/hypr-control-center'
+alias hypr-swap='$HOME/.local/bin/hypr-swap-monitors'
+alias hypr-vibrance='hyprshade toggle vibrance-75'
