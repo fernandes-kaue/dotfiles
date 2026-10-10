@@ -1,0 +1,6 @@
+[Unit]
+Description=Automated commit snapshot for Gemini Memory Vault
+
+[Service]
+Type=oneshot
+ExecStart=/home/kaue/.local/bin/vault-sync
